@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>پنل مدیر — سفینه احساسات 🚀</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Vazirmatn',sans-serif;background:#0B0620;color:#F8F0FF;min-height:100vh;overflow-x:hidden;direction:rtl;}
+
+/* Stars Canvas */
+#starCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+
+/* Screens */
+.screen{display:none;position:relative;z-index:1;min-height:100vh;padding:20px;max-width:900px;margin:0 auto;}
+.screen.active{display:block;}
+
+/* ===== LOGIN ===== */
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;}
+.login-box{width:100%;max-width:400px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:40px 32px;text-align:center;backdrop-filter:blur(20px);}
+.login-icon{font-size:56px;margin-bottom:12px;animation:float 3s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+.login-box h1{font-size:24px;font-weight:800;margin-bottom:4px;background:linear-gradient(135deg,#A855F7,#19E6FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.login-box .sub{font-size:14px;color:#8B7FA8;margin-bottom:28px;}
+.inp-group{margin-bottom:18px;text-align:right;}
+.inp-group label{display:block;font-size:13px;font-weight:500;color:#C9B8E0;margin-bottom:6px;}
+.inp-group input{width:100%;height:48px;padding:12px 16px;font-family:'Vazirmatn',sans-serif;font-size:15px;color:#F8F0FF;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.1);border-radius:12px;outline:none;direction:rtl;transition:.2s;}
+.inp-group input:focus{border-color:#7A2CF5;box-shadow:0 0 12px rgba(122,44,245,.3);}
+.btn-primary{width:100%;height:50px;font-family:'Vazirmatn',sans-serif;font-size:16px;font-weight:700;color:#0B0620;background:linear-gradient(135deg,#FFCC4D,#FFB020);border:none;border-radius:14px;cursor:pointer;transition:.2s;margin-top:4px;}
+.btn-primary:hover{box-shadow:0 6px 24px rgba(255,204,77,.4);transform:translateY(-1px);}
+.login-hint{font-size:12px;color:#8B7FA8;margin-top:14px;}
+.err-msg{font-size:13px;color:#F87171;margin-top:10px;min-height:20px;}
+
+/* ===== DASHBOARD ===== */
+.dash-header{display:flex;align-items:center;justify-content:space-between;padding:16px 0;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+.dash-header h1{font-size:20px;font-weight:800;background:linear-gradient(135deg,#A855F7,#19E6FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.dash-header .sub{font-size:13px;color:#8B7FA8;}
+.header-actions{display:flex;gap:8px;}
+.btn-sm{padding:8px 16px;font-family:'Vazirmatn',sans-serif;font-size:13px;font-weight:600;border:none;border-radius:10px;cursor:pointer;transition:.2s;background:rgba(255,255,255,.08);color:#C9B8E0;border:1px solid rgba(255,255,255,.1);}
+.btn-sm:hover{background:rgba(255,255,255,.14);}
+.btn-sm.danger{color:#F87171;border-color:rgba(248,113,113,.2);}
+.btn-sm.danger:hover{background:rgba(248,113,113,.15);}
+.btn-sm.primary{background:linear-gradient(135deg,#7A2CF5,#A855F7);color:white;border:none;}
+.btn-sm.primary:hover{box-shadow:0 4px 16px rgba(122,44,245,.4);}
+
+/* Stats */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px;}
+.stat-card{padding:18px 14px;border-radius:16px;text-align:center;border:1px solid rgba(255,255,255,.06);backdrop-filter:blur(10px);}
+.stat-card.c1{background:rgba(25,230,255,.06);border-color:rgba(25,230,255,.12);}
+.stat-card.c2{background:rgba(168,85,247,.06);border-color:rgba(168,85,247,.12);}
+.stat-card.c3{background:rgba(74,222,128,.06);border-color:rgba(74,222,128,.12);}
+.stat-card.c4{background:rgba(255,204,77,.06);border-color:rgba(255,204,77,.12);}
+.stat-num{font-size:28px;font-weight:800;display:block;margin-bottom:4px;}
+.stat-card.c1 .stat-num{color:#19E6FF;}
+.stat-card.c2 .stat-num{color:#A855F7;}
+.stat-card.c3 .stat-num{color:#4ADE80;}
+.stat-card.c4 .stat-num{color:#FFCC4D;}
+.stat-label{font-size:12px;font-weight:500;color:#8B7FA8;}
+
+/* Toolbar */
+.toolbar{margin-bottom:20px;}
+.search-box{position:relative;margin-bottom:14px;}
+.search-box .s-icon{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:16px;pointer-events:none;}
+.search-box input{width:100%;height:46px;padding:12px 44px 12px 16px;font-family:'Vazirmatn',sans-serif;font-size:14px;color:#F8F0FF;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;outline:none;transition:.2s;}
+.search-box input:focus{border-color:#7A2CF5;box-shadow:0 0 10px rgba(122,44,245,.2);}
+.search-box input::placeholder{color:#8B7FA8;}
+.tab-row{display:flex;gap:8px;}
+.tab-btn{flex:1;padding:10px;font-family:'Vazirmatn',sans-serif;font-size:13px;font-weight:600;border:none;border-radius:10px;cursor:pointer;transition:.2s;background:rgba(255,255,255,.04);color:#8B7FA8;border:1px solid rgba(255,255,255,.06);}
+.tab-btn.active{background:rgba(122,44,245,.15);color:#D4B8FF;border-color:rgba(168,85,247,.25);}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+/* Student Cards */
+.st-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px;margin-bottom:10px;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:14px;}
+.st-card:hover{background:rgba(255,255,255,.08);border-color:rgba(168,85,247,.2);transform:translateY(-1px);}
+.st-avatar{width:48px;height:48px;min-width:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:white;}
+.st-avatar.a1{background:linear-gradient(135deg,#7A2CF5,#A855F7);}
+.st-avatar.a2{background:linear-gradient(135deg,#19E6FF,#0EA5E9);}
+.st-avatar.a3{background:linear-gradient(135deg,#FFCC4D,#F59E0B);}
+.st-avatar.a4{background:linear-gradient(135deg,#4ADE80,#22C55E);}
+.st-avatar.a5{background:linear-gradient(135deg,#F87171,#EF4444);}
+.st-info{flex:1;min-width:0;}
+.st-name{font-size:15px;font-weight:700;color:#F8F0FF;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.st-meta{font-size:12px;color:#8B7FA8;display:flex;gap:10px;flex-wrap:wrap;}
+.st-badges{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:8px;white-space:nowrap;}
+.badge.grade{background:rgba(25,230,255,.1);color:#19E6FF;border:1px solid rgba(25,230,255,.15);}
+.badge.answers{background:rgba(168,85,247,.1);color:#A855F7;border:1px solid rgba(168,85,247,.15);}
+.badge.done{background:rgba(74,222,128,.1);color:#4ADE80;border:1px solid rgba(74,222,128,.15);}
+.badge.partial{background:rgba(255,204,77,.1);color:#FFCC4D;border:1px solid rgba(255,204,77,.15);}
+.st-arrow{font-size:18px;color:#8B7FA8;}
+
+/* Empty State */
+.empty-state{text-align:center;padding:60px 20px;}
+.empty-icon{font-size:64px;margin-bottom:12px;opacity:.5;}
+.empty-state p{font-size:15px;color:#8B7FA8;}
+
+/* ===== DETAIL ===== */
+.detail-top{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+.btn-back{padding:10px 20px;font-family:'Vazirmatn',sans-serif;font-size:14px;font-weight:600;border:none;border-radius:12px;cursor:pointer;background:rgba(255,255,255,.08);color:#C9B8E0;border:1px solid rgba(255,255,255,.1);transition:.2s;}
+.btn-back:hover{background:rgba(255,255,255,.14);}
+.detail-top h2{font-size:18px;font-weight:700;}
+.info-box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;margin-bottom:20px;}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;}
+.info-item{padding:10px;background:rgba(255,255,255,.03);border-radius:10px;}
+.info-item .il{font-size:11px;font-weight:500;color:#8B7FA8;margin-bottom:3px;}
+.info-item .iv{font-size:14px;font-weight:600;color:#D4B8FF;}
+
+/* Station Sections */
+.station-section{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;margin-bottom:14px;overflow:hidden;}
+.station-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer;transition:.2s;}
+.station-header:hover{background:rgba(255,255,255,.04);}
+.station-header h3{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;}
+.station-header .s-badge{font-size:11px;padding:2px 8px;border-radius:6px;font-weight:600;}
+.station-header .s-badge.s2{background:rgba(74,222,128,.1);color:#4ADE80;}
+.station-header .s-badge.s3{background:rgba(255,204,77,.1);color:#FFCC4D;}
+.station-header .s-badge.s4{background:rgba(168,85,247,.1);color:#A855F7;}
+.station-header .chevron{font-size:16px;color:#8B7FA8;transition:transform .2s;}
+.station-header.open .chevron{transform:rotate(180deg);}
+.station-body{display:none;padding:0 18px 16px;}
+.station-body.open{display:block;}
+
+/* Answer Items */
+.ans-item{padding:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;margin-bottom:8px;}
+.ans-topic{font-size:13px;font-weight:600;color:#D4B8FF;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.ans-row{display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap;}
+.ans-label{font-size:12px;color:#8B7FA8;min-width:60px;}
+.ans-value{font-size:13px;font-weight:500;color:#F8F0FF;}
+.ans-correct{font-size:13px;font-weight:600;color:#4ADE80;}
+.ans-wrong{font-size:13px;font-weight:600;color:#F87171;}
+.ans-badge{font-size:11px;padding:2px 8px;border-radius:6px;font-weight:600;}
+.ans-badge.ok{background:rgba(74,222,128,.15);color:#4ADE80;}
+.ans-badge.no{background:rgba(248,113,113,.15);color:#F87171;}
+.ans-badge.partial{background:rgba(255,204,77,.15);color:#FFCC4D;}
+.ans-time{font-size:11px;color:#8B7FA8;margin-top:4px;}
+
+/* Audio Section */
+.audio-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:12px;margin-bottom:8px;}
+.audio-icon{width:36px;height:36px;min-width:36px;border-radius:10px;background:rgba(168,85,247,.15);display:flex;align-items:center;justify-content:center;font-size:16px;}
+.audio-info{flex:1;}
+.audio-name{font-size:13px;font-weight:600;color:#D4B8FF;}
+.audio-meta{font-size:11px;color:#8B7FA8;}
+.audio-status{font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;}
+.audio-status.has{background:rgba(74,222,128,.1);color:#4ADE80;}
+.audio-status.none{background:rgba(255,255,255,.05);color:#8B7FA8;}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);z-index:100;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal-box{width:90%;max-width:380px;background:#130D2E;border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:28px;text-align:center;}
+.modal-box h3{font-size:16px;margin-bottom:16px;color:#D4B8FF;}
+.modal-box .btn-row{display:flex;gap:8px;margin-top:16px;}
+.modal-box .btn-row button{flex:1;}
+
+/* Responsive */
+@media(max-width:600px){
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+  .st-card{flex-wrap:wrap;}
+  .info-grid{grid-template-columns:1fr 1fr;}
+  .dash-header{flex-direction:column;align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+
+<canvas id="starCanvas"></canvas>
+
+<!-- ===== LOGIN ===== -->
+<section id="screenLogin" class="screen active">
+<div class="login-wrap">
+  <div class="login-box">
+    <div class="login-icon">🛸</div>
+    <h1>پنل مدیر</h1>
+    <p class="sub">سفینه احساسات — سامانه مدیریت</p>
+    <div class="inp-group">
+      <label>رمز عبور مدیر</label>
+      <input type="password" id="inputPass" placeholder="رمز عبور رو وارد کن..." onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn-primary" onclick="doLogin()">ورود به پنل 🚀</button>
+    <p class="login-hint">پیش‌فرض: admin123</p>
+    <p id="loginErr" class="err-msg"></p>
+  </div>
+</div>
+</section>
+
+<!-- ===== DASHBOARD ===== -->
+<section id="screenDashboard" class="screen">
+  <div class="dash-header">
+    <div>
+      <h1>پنل مدیر 🚀</h1>
+      <p class="sub">سفینه احساسات</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-sm" onclick="openChangePass()">🔐 رمز</button>
+      <button class="btn-sm" onclick="exportAll()">📥 خروجی</button>
+      <button class="btn-sm danger" onclick="doLogout()">خروج</button>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card c1">
+      <span class="stat-num" id="sTotal">۰</span>
+      <span class="stat-label">دانش‌آموز</span>
+    </div>
+    <div class="stat-card c2">
+      <span class="stat-num" id="sAnswers">۰</span>
+      <span class="stat-label">پاسخ ثبت‌شده</span>
+    </div>
+    <div class="stat-card c3">
+      <span class="stat-num" id="sDone">۰</span>
+      <span class="stat-label">تکمیل‌شده</span>
+    </div>
+    <div class="stat-card c4">
+      <span class="stat-num" id="sAvg">٪۰</span>
+      <span class="stat-label">میانگین نمره</span>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <span class="s-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="جستجو بر اساس نام دانش‌آموز..." oninput="filterAndRender()">
+    </div>
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="setTab('students',this)">📋 دانش‌آموزان</button>
+      <button class="tab-btn" onclick="setTab('audio',this)">🎵 فایل‌های صوتی</button>
+    </div>
+  </div>
+
+  <div id="tabStudents" class="tab-content active"></div>
+  <div id="tabAudio" class="tab-content"></div>
+</section>
+
+<!-- ===== DETAIL ===== -->
+<section id="screenDetail" class="screen">
+  <div class="detail-top">
+    <button class="btn-back" onclick="showScreen('screenDashboard')">→ بازگشت</button>
+    <h2 id="detailTitle"></h2>
+  </div>
+  <div id="detailInfo"></div>
+  <div id="detailStations"></div>
+  <div id="detailAudio"></div>
+</section>
+
+<!-- ===== CHANGE PASSWORD MODAL ===== -->
+<div class="modal-overlay" id="passModal">
+  <div class="modal-box">
+    <h3>🔐 تغییر رمز عبور</h3>
+    <div class="inp-group">
+      <label>رمز فعلی</label>
+      <input type="password" id="oldPass">
+    </div>
+    <div class="inp-group">
+      <label>رمز جدید</label>
+      <input type="password" id="newPass">
+    </div>
+    <p id="passErr" class="err-msg"></p>
+    <div class="btn-row">
+      <button class="btn-sm" onclick="closePassModal()">انصراف</button>
+      <button class="btn-sm primary" onclick="changePass()">ذخیره</button>
+    </div>
+  </div>
+</div>
+<script src="js/content.js"></script>
+<script>
+/* ===== HELPERS ===== */
+function toPersianNum(n){var d=['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];return String(n).replace(/\d/g,function(c){return d[c];});}
+function formatTs(iso){if(!iso)return'---';try{var d=new Date(iso);var h=toPersianNum(('0'+d.getHours()).slice(-2));var m=toPersianNum(('0'+d.getMinutes()).slice(-2));var y=toPersianNum(d.getFullYear());var mo=toPersianNum(('0'+(d.getMonth()+1)).slice(-2));var dy=toPersianNum(('0'+d.getDate()).slice(-2));return y+'/'+mo+'/'+dy+' '+h+':'+m;}catch(e){return iso;}}
+function duration(s,e){if(!s)return'---';var st=new Date(s).getTime();var en=e?new Date(e).getTime():Date.now();var diff=Math.floor((en-st)/1000);var mins=Math.floor(diff/60);var secs=diff%60;return toPersianNum(mins)+' دقیقه و '+toPersianNum(secs)+' ثانیه';}
+function sanitize(str){var d=document.createElement('div');d.textContent=str;return d.innerHTML;}
+
+/* ===== CONTENT LOOKUPS ===== */
+function getStoryById(id){for(var i=0;i<CONTENT.stories.length;i++){if(CONTENT.stories[i].id===id)return CONTENT.stories[i];}return null;}
+function getStationName(num){for(var i=0;i<CONTENT.stations.length;i++){if(CONTENT.stations[i].number===num)return CONTENT.stations[i].name;}return'ایستگاه '+toPersianNum(num);}
+
+/* ===== STORAGE ===== */
+function getSessions(){try{return JSON.parse(localStorage.getItem('je_sessions_list')||'[]');}catch(e){return[];}}
+function getRecordings(){try{return JSON.parse(localStorage.getItem('je_recordings')||'{}');}catch(e){return{};}}
+function getPass(){return localStorage.getItem('je_admin_pass')||'admin123';}
+function setPass(p){localStorage.setItem('je_admin_pass',p);}
+
+/* ===== STARS ===== */
+(function(){
+  var c=document.getElementById('starCanvas');if(!c)return;
+  var ctx=c.getContext('2d');
+  function resize(){c.width=window.innerWidth;c.height=window.innerHeight;}
+  resize();window.addEventListener('resize',resize);
+  var stars=[];
+  for(var i=0;i<120;i++){stars.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.5+0.3,a:Math.random(),d:Math.random()*0.02+0.005});}
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    stars.forEach(function(s){s.a+=s.d;if(s.a>1||s.a<0)s.d*=-1;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,'+Math.max(0,Math.min(1,s.a))+')';ctx.fill();});
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ===== AUTH ===== */
+function doLogin(){
+  var pass=document.getElementById('inputPass').value;
+  var err=document.getElementById('loginErr');
+  if(pass===getPass()){err.textContent='';showScreen('screenDashboard');renderDashboard();}
+  else{err.textContent='رمز عبور اشتباه است! ❌';}
+}
+function doLogout(){showScreen('screenLogin');document.getElementById('inputPass').value='';}
+function openChangePass(){document.getElementById('passModal').classList.add('open');document.getElementById('oldPass').value='';document.getElementById('newPass').value='';document.getElementById('passErr').textContent='';}
+function closePassModal(){document.getElementById('passModal').classList.remove('open');}
+function changePass(){
+  var o=document.getElementById('oldPass').value;var n=document.getElementById('newPass').value;var e=document.getElementById('passErr');
+  if(o!==getPass()){e.textContent='رمز فعلی اشتباه است!';return;}
+  if(n.length<4){e.textContent='رمز جدید باید حداقل ۴ کاراکتر باشد.';return;}
+  setPass(n);e.textContent='';closePassModal();alert('رمز عبور با موفقیت تغییر کرد! ✅');
+}
+
+/* ===== SCREEN NAVIGATION ===== */
+function showScreen(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});document.getElementById(id).classList.add('active');}
+
+/* ===== TABS ===== */
+function setTab(tab,btn){
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});
+  document.getElementById(tab==='students'?'tabStudents':'tabAudio').classList.add('active');
+}
+
+/* ===== AVATAR ===== */
+var avatarColors=['a1','a2','a3','a4','a5'];
+function getAvatarColor(name){var h=0;for(var i=0;i<(name||'').length;i++)h=name.charCodeAt(i)+((h<<5)-h);return avatarColors[Math.abs(h)%avatarColors.length];}
+function getInitial(name){return(name||'?').charAt(0);}
+
+/* ===== FILTER ===== */
+var allSessions=[];
+var filteredSessions=[];
+
+function filterAndRender(){
+  var q=document.getElementById('searchInput').value.trim();
+  filteredSessions=allSessions;
+  if(q){filteredSessions=allSessions.filter(function(s){return s.student&&s.student.name&&s.student.name.indexOf(q)!==-1;});}
+  renderStudentList(filteredSessions);
+}
+
+/* ===== DASHBOARD ===== */
+function renderDashboard(){
+  allSessions=getSessions();
+  filteredSessions=allSessions;
+
+  var total=allSessions.length;var done=0;var totalAnswers=0;var totalCorrect=0;var totalQ=0;
+  allSessions.forEach(function(s){
+    if(s.completed) done++;
+    for(var sid in(s.answers||{})){
+      var a=s.answers[sid];if(!a)continue;
+      totalAnswers++;
+      if(a.station===3&&a.answered){totalQ++;if(a.isCorrect)totalCorrect++;}
+      if(a.station===4&&a.answered){totalQ++;if(a.allCorrect)totalCorrect++;else if(a.correctCount>0)totalCorrect+=0.5;}
+    }
+  });
+  var avg=totalQ>0?Math.round((totalCorrect/totalQ)*100):0;
+
+  document.getElementById('sTotal').textContent=toPersianNum(total);
+  document.getElementById('sAnswers').textContent=toPersianNum(totalAnswers);
+  document.getElementById('sDone').textContent=toPersianNum(done);
+  document.getElementById('sAvg').textContent='٪'+toPersianNum(avg);
+
+  document.getElementById('searchInput').value='';
+  renderStudentList(allSessions);
+  renderAudioTab();
+}
+
+/* ===== STUDENT LIST ===== */
+function renderStudentList(sessions){
+  var container=document.getElementById('tabStudents');
+  if(!sessions.length){
+    container.innerHTML='<div class="empty-state"><div class="empty-icon">🛸</div><p>هنوز هیچ دانش‌آموزی ثبت نشده است</p><p style="font-size:13px;color:#8B7FA8;margin-top:8px;">وقتی دانش‌آموزان از اپلیکیشن استفاده کنن، اطلاعاتشون اینجا نمایش داده می‌شه.</p></div>';
+    return;
+  }
+  var h='';
+  sessions.forEach(function(s){
+    var name=s.student?s.student.name:'---';
+    var grade=s.student?s.student.grade:'';
+    var ansCount=Object.keys(s.answers||{}).length;
+    var sid=s.id||s.session&&s.session.startTime||'';
+    var ac=getAvatarColor(name);
+
+    h+='<div class="st-card" onclick="showDetail(\''+sanitize(sid)+'\')">';
+    h+='<div class="st-avatar '+ac+'">'+getInitial(name)+'</div>';
+    h+='<div class="st-info">';
+    h+='<div class="st-name">'+sanitize(name)+'</div>';
+    h+='<div class="st-meta"><span>کلاس '+toPersianNum(grade)+'</span><span>'+formatTs(s.session?s.session.startTime:'')+'</span></div>';
+    h+='</div>';
+    h+='<div class="st-badges">';
+    h+='<span class="badge grade">کلاس '+toPersianNum(grade)+'</span>';
+    h+='<span class="badge answers">'+toPersianNum(ansCount)+' پاسخ</span>';
+    if(s.completed) h+='<span class="badge done">تکمیل ✅</span>';
+    else h+='<span class="badge partial">ناقص</span>';
+    h+='</div>';
+    h+='<span class="st-arrow">←</span>';
+    h+='</div>';
+  });
+  container.innerHTML=h;
+}
+
+/* ===== STUDENT DETAIL (FIX: use sessionId) ===== */
+function showDetail(sessionId){
+  var s=null;
+  for(var i=0;i<allSessions.length;i++){
+    var curId=allSessions[i].id||(allSessions[i].session&&allSessions[i].session.startTime)||'';
+    if(curId===sessionId){s=allSessions[i];break;}
+  }
+  if(!s){showToastMsgAdmin('جلسه یافت نشد! ❌');return;}
+
+  var name=s.student?s.student.name:'---';
+  document.getElementById('detailTitle').textContent='📋 '+sanitize(name);
+
+  /* Info box */
+  var infoH='<div class="info-box"><div class="info-grid">';
+  infoH+='<div class="info-item"><div class="il">نام</div><div class="iv">'+sanitize(name)+'</div></div>';
+  infoH+='<div class="info-item"><div class="il">سن</div><div class="iv">'+toPersianNum(s.student?s.student.age:'---')+'</div></div>';
+  infoH+='<div class="info-item"><div class="il">پایه</div><div class="iv">کلاس '+toPersianNum(s.student?s.student.grade:'---')+'</div></div>';
+  infoH+='<div class="info-item"><div class="il">شروع</div><div class="iv">'+formatTs(s.session?s.session.startTime:'')+'</div></div>';
+  infoH+='<div class="info-item"><div class="il">پایان</div><div class="iv">'+formatTs(s.session?s.session.endTime:'')+'</div></div>';
+  infoH+='<div class="info-item"><div class="il">مدت زمان</div><div class="iv">'+duration(s.session?s.session.startTime:'',s.session?s.session.endTime:'')+'</div></div>';
+  infoH+='</div></div>';
+  document.getElementById('detailInfo').innerHTML=infoH;
+
+  /* Group answers by station */
+  var s2=[],s3=[],s4=[];
+  for(var storyId in(s.answers||{})){
+    var a=s.answers[storyId];if(!a)continue;
+    if(a.station===2) s2.push({storyId:parseInt(storyId),data:a});
+    else if(a.station===3) s3.push({storyId:parseInt(storyId),data:a});
+    else if(a.station===4) s4.push({storyId:parseInt(storyId),data:a});
+  }
+
+  var stH='';
+
+  /* Station 2 */
+  stH+=buildStationSection('ایستگاه دوم — شناخت احساسات','s2',s2,function(item){
+    var story=getStoryById(item.storyId);
+    var topic=story?story.topic:'داستان '+toPersianNum(item.storyId);
+    var target=story?story.targetEmotion:'';
+    var h='<div class="ans-item">';
+    h+='<div class="ans-topic">📖 '+sanitize(topic)+'</div>';
+    h+='<div class="ans-row"><span class="ans-label">پاسخ:</span><span class="ans-value">'+sanitize(item.data.text||'---')+'</span></div>';
+    if(target) h+='<div class="ans-row"><span class="ans-label">هدف:</span><span class="ans-value">'+sanitize(target)+'</span></div>';
+    h+='<div class="ans-time">🕐 '+formatTs(item.data.timestamp)+'</div>';
+    h+='</div>';return h;
+  });
+
+  /* Station 3 */
+  stH+=buildStationSection('ایستگاه سوم — انتخاب احساس','s3',s3,function(item){
+    var story=getStoryById(item.storyId);
+    var topic=story?story.topic:'داستان '+toPersianNum(item.storyId);
+    var selectedText='---';var correctText='---';
+    if(story&&story.question&&story.question.options){
+      story.question.options.forEach(function(o){
+        if(o.id===item.data.selectedId) selectedText=o.text;
+        if(o.isCorrect) correctText=o.text;
+      });
+    }
+    var isCorrect=item.data.isCorrect;
+    var h='<div class="ans-item">';
+    h+='<div class="ans-topic">📖 '+sanitize(topic)+'</div>';
+    h+='<div class="ans-row"><span class="ans-label">انتخاب:</span><span class="'+(isCorrect?'ans-correct':'ans-wrong')+'">'+sanitize(selectedText)+'</span>';
+    h+=' <span class="ans-badge '+(isCorrect?'ok':'no')+'">'+(isCorrect?'✅ درست':'❌ نادرست')+'</span></div>';
+    if(!isCorrect) h+='<div class="ans-row"><span class="ans-label">جواب درست:</span><span class="ans-correct">'+sanitize(correctText)+'</span></div>';
+    h+='<div class="ans-time">🕐 '+formatTs(item.data.timestamp)+'</div>';
+    h+='</div>';return h;
+  });
+
+  /* Station 4 */
+  stH+=buildStationSection('ایستگاه چهارم — احساسات ترکیبی','s4',s4,function(item){
+    var story=getStoryById(item.storyId);
+    var topic=story?story.topic:'داستان '+toPersianNum(item.storyId);
+    var selectedTexts=[];
+    if(story&&story.question&&story.question.options){
+      (item.data.selectedIds||[]).forEach(function(sid){
+        story.question.options.forEach(function(o){if(o.id===sid) selectedTexts.push(o.text);});
+      });
+    }
+    var total=item.data.correctCount||0;var max=story?story.question.correctCount:2;
+    var allOk=item.data.allCorrect;
+    var h='<div class="ans-item">';
+    h+='<div class="ans-topic">📖 '+sanitize(topic)+'</div>';
+    h+='<div class="ans-row"><span class="ans-label">انتخاب‌ها:</span><span class="ans-value">'+sanitize(selectedTexts.join('، '))+'</span></div>';
+    h+='<div class="ans-row"><span class="ans-label">نتیجه:</span><span class="ans-badge '+(allOk?'ok':total>0?'partial':'no')+'">'+toPersianNum(total)+' از '+toPersianNum(max)+' درست</span></div>';
+    h+='<div class="ans-time">🕐 '+formatTs(item.data.timestamp)+'</div>';
+    h+='</div>';return h;
+  });
+
+  document.getElementById('detailStations').innerHTML=stH;
+
+  /* Audio section */
+  var audioH='<div class="station-section" style="margin-top:20px;">';
+  audioH+='<div class="station-header" onclick="toggleSection(this)"><h3>🎵 فایل‌های صوتی</h3><span class="chevron">▼</span></div>';
+  audioH+='<div class="station-body">';
+  var recs=getRecordings();
+  var hasRec=false;
+  var sessionId=s.id||(s.session&&s.session.startTime)||'';
+
+  CONTENT.stories.forEach(function(story){
+    var recKey1='story_'+story.id+'_'+sessionId;
+    var recKey2='story_'+story.id;
+    var recKey3='intro_'+story.id+'_'+sessionId;
+    var hasRecData=recs[recKey1]||recs[recKey2]||recs[recKey3];
+    audioH+='<div class="audio-item">';
+    audioH+='<div class="audio-icon">🎵</div>';
+    audioH+='<div class="audio-info"><div class="audio-name">'+sanitize(story.audioFile)+'</div><div class="audio-meta">'+sanitize(story.topic)+' — ایستگاه '+toPersianNum(story.station)+'</div></div>';
+    if(hasRecData){audioH+='<span class="audio-status has">ضبط شده ▶</span>';hasRec=true;}
+    else audioH+='<span class="audio-status none">---</span>';
+    audioH+='</div>';
+  });
+
+  /* Also check intro recordings */
+  for(var key in recs){
+    if(key.indexOf('intro_')===0){
+      hasRec=true;
+    }
+  }
+
+  if(hasRec){
+    audioH+='<p style="font-size:12px;color:#4ADE80;margin-top:10px;text-align:center;">ضبط‌های دانش‌آموز ذخیره شده و قابل پخش هستند.</p>';
+  }else{
+    audioH+='<p style="font-size:12px;color:#8B7FA8;margin-top:10px;text-align:center;">ضبط‌های صوتی دانش‌آموز در مرورگر ذخیره نشده‌اند.</p>';
+  }
+  audioH+='</div></div>';
+  document.getElementById('detailAudio').innerHTML=audioH;
+
+  showScreen('screenDetail');
+}
+
+/* ===== BUILD STATION SECTION ===== */
+function buildStationSection(title,cls,items,renderFn){
+  if(!items.length) return '';
+  var h='<div class="station-section">';
+  h+='<div class="station-header" onclick="toggleSection(this)">';
+  h+='<h3>'+title+' <span class="s-badge '+cls+'">'+toPersianNum(items.length)+' فعالیت</span></h3>';
+  h+='<span class="chevron">▼</span></div>';
+  h+='<div class="station-body">';
+  items.forEach(function(item){h+=renderFn(item);});
+  h+='</div></div>';
+  return h;
+}
+
+/* ===== TOGGLE SECTION ===== */
+function toggleSection(header){
+  var body=header.nextElementSibling;
+  header.classList.toggle('open');
+  body.classList.toggle('open');
+}
+
+/* ===== AUDIO TAB ===== */
+function renderAudioTab(){
+  var h='';
+  h+='<div style="margin-bottom:16px;">';
+  h+='<p style="font-size:14px;color:#C9B8E0;margin-bottom:4px;">🎵 فایل‌های صوتی داستان‌ها</p>';
+  h+='<p style="font-size:12px;color:#8B7FA8;">لیست تمام فایل‌های صوتی تعریف‌شده در پروژه</p>';
+  h+='</div>';
+
+  var grouped={};
+  CONTENT.stories.forEach(function(s){
+    if(!grouped[s.station]) grouped[s.station]=[];
+    grouped[s.station].push(s);
+  });
+
+  for(var station in grouped){
+    h+='<div style="margin-bottom:16px;">';
+    h+='<p style="font-size:13px;font-weight:600;color:#D4B8FF;margin-bottom:8px;">'+sanitize(getStationName(parseInt(station)))+'</p>';
+    grouped[station].forEach(function(story){
+      h+='<div class="audio-item">';
+      h+='<div class="audio-icon">🎵</div>';
+      h+='<div class="audio-info"><div class="audio-name">'+sanitize(story.audioFile)+'</div><div class="audio-meta">'+sanitize(story.topic)+'</div></div>';
+      h+='<span class="audio-status has">فعال</span>';
+      h+='</div>';
+    });
+    h+='</div>';
+  }
+
+  /* Recordings */
+  var recs=getRecordings();
+  var recKeys=Object.keys(recs);
+  if(recKeys.length){
+    h+='<div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.06);">';
+    h+='<p style="font-size:14px;color:#C9B8E0;margin-bottom:8px;">🎙️ ضبط‌های ذخیره‌شده ('+toPersianNum(recKeys.length)+' فایل)</p>';
+    recKeys.forEach(function(key){
+      var label=key;
+      if(key.indexOf('intro_')===0) label='ضبط معرفی — اسلاید '+key.replace('intro_','');
+      else if(key.indexOf('story_')===0) label='ضبط پاسخ — داستان '+key.split('_')[1];
+      h+='<div class="audio-item"><div class="audio-icon">🎙️</div>';
+      h+='<div class="audio-info"><div class="audio-name">'+sanitize(label)+'</div><div class="audio-meta">'+sanitize(key)+'</div></div>';
+      h+='<span class="audio-status has">دارد</span></div>';
+    });
+    h+='</div>';
+  }
+
+  document.getElementById('tabAudio').innerHTML=h;
+}
+
+/* ===== EXPORT ===== */
+function exportAll(){
+  var data=JSON.stringify(allSessions,null,2);
+  var blob=new Blob([data],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;a.download='students-data-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* ===== TOAST (admin-local) ===== */
+function showToastMsgAdmin(msg){
+  var el=document.createElement('div');
+  el.textContent=msg;
+  el.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(248,113,113,.9);color:white;padding:10px 20px;border-radius:12px;font-size:14px;z-index:200;font-family:Vazirmatn,sans-serif;direction:rtl;';
+  document.body.appendChild(el);
+  setTimeout(function(){el.remove();},3000);
+}
+</script>
+</body>
+</html>

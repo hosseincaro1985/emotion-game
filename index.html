@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>سفینه احساسات 🚀</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/slides.css">
+<link rel="stylesheet" href="css/ui.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<canvas id="starCanvas"></canvas>
+
+<div class="app-container">
+  <header class="header">
+    <h1 class="header-title">سفینه احساسات 🚀</h1>
+    <span class="header-badge" id="stationBadge">اسلاید ۱</span>
+  </header>
+
+  <main class="slide-container">
+    <div id="slideWrapper" class="slide-wrapper"></div>
+  </main>
+
+  <div class="progress-area">
+    <div class="progress-labels">
+      <span class="progress-text">پیشرفت</span>
+      <span class="progress-pct" id="progressPct">۰٪</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <button class="nav-btn nav-prev" id="btnPrev" disabled>
+    <span class="arrow">→</span><span>قبلی</span>
+  </button>
+  <div class="nav-slide-num">
+    <span id="navCurrent">۱</span> / <span id="navTotal">۲۴</span>
+  </div>
+  <button class="nav-btn nav-next" id="btnNext">
+    <span>بعدی</span><span class="arrow">←</span>
+  </button>
+</nav>
+
+<div class="val-error" id="valError"></div>
+<div class="val-success" id="valSuccess"></div>
+
+<script src="js/content.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/alien.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/renderers.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/app.js"></script>
+
+<script>
+/* Star canvas */
+(function(){
+  var c=document.getElementById('starCanvas');
+  if(!c)return;
+  var ctx=c.getContext('2d');
+  function resize(){c.width=window.innerWidth;c.height=window.innerHeight;}
+  resize();window.addEventListener('resize',resize);
+  var stars=[];
+  for(var i=0;i<100;i++){
+    stars.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.5+0.3,a:Math.random(),d:Math.random()*0.02+0.005});
+  }
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    stars.forEach(function(s){
+      s.a+=s.d;if(s.a>1||s.a<0)s.d*=-1;
+      ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,255,255,'+Math.max(0,Math.min(1,s.a))+')';
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>
